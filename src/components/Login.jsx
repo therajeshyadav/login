@@ -1,17 +1,33 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); 
-  const submitHandler = (e) => {
+  const navigate = useNavigate();
+
+  const submitHandler = async (e) => {
     e.preventDefault();
-    console.log("Email:", email);
-    console.log("Password:", password);
-    navigate('/task');
-    setEmail('');
-    setPassword('');
+
+    const loginData = {
+      email,
+      password,
+    };
+
+    try {
+      const response = await axios.post('http://localhost:8080/auth/login', loginData, {
+        withCredentials: true, // Ensure the cookie is set
+      });
+      console.log('Login successful, token:', response.data);
+      alert('Login successful!');
+      setEmail('');
+      setPassword('');
+      navigate('/task');
+    } catch (error) {
+      console.error('Login Error:', error.response?.data || error.message);
+      alert('Login failed. Check console for details.');
+    }
   };
 
   return (

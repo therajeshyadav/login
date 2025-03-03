@@ -1,20 +1,38 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const SignUp = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-    console.log("Sign Up - Email:", email);
-    navigate('/'); 
+
+    const signUpData = {
+      name,
+      email,
+      password,
+    };
+
+    try {
+      const response = await axios.post('http://localhost:8080/auth/signup', signUpData, {
+        withCredentials: true, // For cookies if needed later
+      });
+      console.log('Sign Up Response:', response.data); // Logs the UserDTO returned
+      alert('Sign up successful!');
+      navigate('/'); // Redirect to login or home
+    } catch (error) {
+      console.error('Sign Up Error:', error.response?.data || error.message);
+      alert('Sign up failed. Check console for details.');
+    }
   };
 
   return (
@@ -23,10 +41,18 @@ const SignUp = () => {
         <h2 className="text-2xl text-center mb-4">Sign Up</h2>
         <form onSubmit={submitHandler} className="flex flex-col">
           <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className="border-2 border-emerald-600 rounded-full py-3 px-5 text-lg outline-none bg-transparent placeholder-gray-400"
+            type="text"
+            placeholder="Enter Your Name"
+          />
+          <input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="border-2 border-emerald-600 rounded-full py-3 px-5 text-lg outline-none bg-transparent placeholder-gray-400"
+            className="mt-3 border-2 border-emerald-600 rounded-full py-3 px-5 text-lg outline-none bg-transparent placeholder-gray-400"
             type="email"
             placeholder="Enter Your Email"
           />
